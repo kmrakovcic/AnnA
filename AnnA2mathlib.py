@@ -28,7 +28,7 @@ class Errorfunction:
 	def cost (neurons, result):
 		mjerenja_u_redu=len(neurons.shape)-2
 		out=((result*np.log(neurons)+(1-result)*np.log(1-neurons)).sum (axis=mjerenja_u_redu)).sum (axis=mjerenja_u_redu)/neurons.shape[mjerenja_u_redu]
-		return out
+		return (-1)*out
 
 def tensortovector (input):
 	max=0
@@ -46,15 +46,6 @@ def derivate (style,fx,fdx,result):
 	out=exec("der."+style+"(style,fdx,result)-der."+style+"(style,f,result))/derivationstep")
 
 if __name__ == '__main__':
-	a=np.array (([6,7,8]))
-	b=np.array (([0,1,2],[3,4,5],[6,7,8]))
-	c=a+b
-	#c=np.rot90 (c,1,(0,2))
-	print (c)
-	print ("_________")
-	print (b)
-	print("_________")
-	print (c*b)
-	#print((a+b).sum (axis=2))
+	()
 
 

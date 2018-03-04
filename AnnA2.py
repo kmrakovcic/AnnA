@@ -80,29 +80,31 @@ class Brain:
 		with open(self.resultfile, "r") as file:
 			result=np.reshape(np.loadtxt(file),(-1,self.n[len(self.n)-1].size))
 		with open(self.changedneuronsfile, "r") as file:
-			changedneurons=np.reshape(np.loadtxt(file),(sum(a.arhitecture)+sum([i.size for i in a.w])-self.arhitecture[0],-1,self.n[len(self.n)-1].size))
+			changedneurons=np.reshape(np.loadtxt(file),(sum(self.arhitecture)+sum([i.size for i in self.w])-self.arhitecture[0],-1,self.n[len(self.n)-1].size))
+		open(self.outputneuronsfile, 'w').close()
+		open(self.resultfile, 'w').close()
+		open(self.changedneuronsfile, 'w').close()
 		return outputneurons, result, changedneurons
 
 	def uci (self, outputneurons, result, changedneurons):
 		derivation=(self.errorfunction(changedneurons,result)-self.errorfunction(outputneurons,result))/self.derivationstep
+		print ("derivacija:")
+		print (derivation)
 		pomw=derivation [:derivation.size-sum(self.arhitecture)+self.arhitecture[0]]
 		pomb=np.concatenate((np.zeros(self.arhitecture[0]), derivation [derivation.size-sum(self.arhitecture)+self.arhitecture[0]:]))
 		a=0
 		for i in range (len (self.arhitecture)):		#change b
-			self.b[i]+=pomb[a:a+self.arhitecture[i]]*self.learningcoefficientb
+			self.b[i]-=pomb[a:a+self.arhitecture[i]]*self.learningcoefficientb
 			a+=self.arhitecture[i]
+			print ("bias red "+str(i))
+			print (self.b)
 		a=0
 		for i in range (len (self.w)):					#change w
-			self.w[i]+=pomw[a:a+self.w[i].size].reshape(self.w[i].shape)*self.learningcoefficientw
+			self.w[i]-=pomw[a:a+self.w[i].size].reshape(self.w[i].shape)*self.learningcoefficientw*(-1)
 			a+=self.w[i].size
-		return
+			print ("weight red "+str(i))
+			print (self.w)
+		return 
 
 if __name__ == '__main__':
-	a=Brain ()
-	a.birth ()	
-	input= np.random.random (a.arhitecture [0])
-	result = np.random.random (a.arhitecture [len (a.arhitecture)-1])
-	a.connect (input)
-	a.mjeri (input,result)
-	k=a.getmjerenja ()
-	a.uci (k[0],k[1],k[2])
+	()
