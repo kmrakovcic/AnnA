@@ -4,11 +4,11 @@ import random
 
 
 class Brain: 
-	def __init__ (self):
+	def __init__ (self,arhitecture):
 		self.n=[]
 		self.b=[]
 		self.w=[]
-		self.arhitecture=np.array([3,3,2])#[784,16,16,10]) [3,3,2])
+		self.arhitecture=np.array(arhitecture)#np.array([3,3,2])#[784,16,16,10]) [3,3,2])
 		self.activationfunction=Activationfunction.sigmoid       #"nofunction","binarystep","sigmoid","tanh","ReLU","leakyReLU"
 		self.errorfunction=Errorfunction.cost        #"meanSquaredError", "cost"
 		self.derivationstep=0.1
@@ -88,22 +88,16 @@ class Brain:
 
 	def uci (self, outputneurons, result, changedneurons):
 		derivation=(self.errorfunction(changedneurons,result)-self.errorfunction(outputneurons,result))/self.derivationstep
-		print ("derivacija:")
-		print (derivation)
 		pomw=derivation [:derivation.size-sum(self.arhitecture)+self.arhitecture[0]]
 		pomb=np.concatenate((np.zeros(self.arhitecture[0]), derivation [derivation.size-sum(self.arhitecture)+self.arhitecture[0]:]))
 		a=0
 		for i in range (len (self.arhitecture)):		#change b
 			self.b[i]-=pomb[a:a+self.arhitecture[i]]*self.learningcoefficientb
 			a+=self.arhitecture[i]
-			print ("bias red "+str(i))
-			print (self.b)
 		a=0
 		for i in range (len (self.w)):					#change w
 			self.w[i]-=pomw[a:a+self.w[i].size].reshape(self.w[i].shape)*self.learningcoefficientw*(-1)
 			a+=self.w[i].size
-			print ("weight red "+str(i))
-			print (self.w)
 		return 
 
 if __name__ == '__main__':
