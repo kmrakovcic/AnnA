@@ -1,2 +1,2 @@
 # AnnA
-Artificial neural network "Anna"
+Artificial neural network "AnnA"
