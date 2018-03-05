@@ -63,7 +63,7 @@ def automatic_arh (input,output,alpha=0): #alpha>2 za 1 hidden layer, 0 za 0, in
 
 
 if __name__ == '__main__':
-	f=["weights.txt","bias.txt","tests1"]
+	f=["weights.txt","bias.txt","tests2x2"]
 	log=""
 	x1=""
 	fileinit (f)
