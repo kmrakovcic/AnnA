@@ -27,8 +27,13 @@ class Errorfunction:
 	
 	def cost (neurons, result):
 		mjerenja_u_redu=len(neurons.shape)-2
-		out=((result*np.log(neurons)+(1-result)*np.log(1-neurons)).sum (axis=mjerenja_u_redu)).sum (axis=mjerenja_u_redu)/neurons.shape[mjerenja_u_redu]
-		return (-1)*out
+		if 1 in neurons:
+			neurons=neurons-np.isin(neurons,1)*0.1
+		elif 0 in neurons:
+			neurons=neurons+np.isin(neurons,1)*0.1
+		out=((result*np.log(neurons)+(1-result)*np.log(1-neurons)).sum (axis=mjerenja_u_redu)).sum (axis=mjerenja_u_redu)/neurons.shape[mjerenja_u_redu]*(-1)
+
+		return out
 
 def tensortovector (input):
 	max=0

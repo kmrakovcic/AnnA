@@ -26,8 +26,8 @@ class Brain:
 				self.w.append (np.random.random ((self.arhitecture [j+1],i)))
 
 
-	def connect (self,input):
-		self.n[0]=input
+	def connect (self,input_layer):
+		self.n[0]=input_layer
 		for i in range(len(self.n)-1):
 			self.n[i+1]=self.activationfunction (self.w[i].dot(self.n[i])-self.b[i+1])
 		return self.n [len(self.n)-1]
