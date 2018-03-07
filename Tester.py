@@ -64,7 +64,6 @@ def automatic_arh (input,output,alpha=0): #alpha>2 za 1 hidden layer, 0 za 0, in
 
 if __name__ == '__main__':
 	f=["weights.txt","bias.txt","tests2x2"]
-	log=""
 	x1=""
 	fileinit (f)
 	input1, result=getinput (f[len(f)-1])
@@ -72,6 +71,7 @@ if __name__ == '__main__':
 	a=Brain (arh)
 	a.birth ()
 	while not (x1=="x"):
+		log=""
 		os.system('cls')
 		for j in range (len(input1)):
 			a.connect (input1[j])
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 			log+="TEST: "+str (j+1)+"\n"
 			for i in printstate (a):
 				log+=i
-			log+="RESULT:\n"+str(result[j])+"\n------------------------\n"
+			log+="RESULT: "+str(result[j])+"\n------------------------\n"
 		k=a.getmjerenja ()
 		a.uci (k[0],k[1],k[2])
 		print (log)
