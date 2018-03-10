@@ -57,6 +57,8 @@ def automatic_arh (input,output,alpha=0): #alpha>2 za 1 hidden layer, 0 za 0, in
 		arh=[n,hidden1,hidden2,m]
 	else:
 		hidden1=int(round(N/(alpha*(n+m))))
+		if hidden1==0: 
+			hidden1=1
 		arh=[n,hidden1,m]
 	return arh
 
