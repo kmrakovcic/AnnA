@@ -65,22 +65,40 @@ class Brain:
 			neuroni=neuroni.T [self.arhitecture[0]:,:]
 		return neuroni
 
-	def mjeri (self,input,result):
-		with open(self.outputneuronsfile, "a") as file:
-			np.savetxt (file,self.n[len(self.n)-1])
-		with open(self.resultfile, "a") as file:
-			np.savetxt (file,result)
-		with open(self.changedneuronsfile, "a") as file:
-			np.savetxt(file,self.getfdx ("w"), delimiter="\n")
-			np.savetxt(file,self.getfdx ("b"), delimiter="\n")
+	def mjeri (self,input,result,style=1):
+		if style==0:
+			with open(self.outputneuronsfile, "a") as file:
+				np.savetxt (file,self.n[len(self.n)-1])
+			with open(self.resultfile, "a") as file:
+				np.savetxt (file,result)
+			with open(self.changedneuronsfile, "a") as file:
+				np.savetxt(file,self.getfdx ("w"), delimiter="\n")
+				np.savetxt(file,self.getfdx ("b"), delimiter="\n")
+		elif style==1:
+			with open(self.outputneuronsfile, "ab") as file:
+				np.save (file,self.n[len(self.n)-1])
+			with open(self.resultfile, "ab") as file:
+				np.save (file,result)
+			with open(self.changedneuronsfile, "ab") as file:
+				a=self.getfdx ("w")
+				a=np.append (a, self.getfdx ("b"))
+				np.save (file,a)
 
-	def getmjerenja (self):
-		with open(self.outputneuronsfile, "r") as file:
-			outputneurons=np.reshape(np.loadtxt(file),(-1,self.n[len(self.n)-1].size))
-		with open(self.resultfile, "r") as file:
-			result=np.reshape(np.loadtxt(file),(-1,self.n[len(self.n)-1].size))
-		with open(self.changedneuronsfile, "r") as file:
-			changedneurons=np.reshape(np.loadtxt(file),(sum(self.arhitecture)+sum([i.size for i in self.w])-self.arhitecture[0],-1,self.n[len(self.n)-1].size))
+	def getmjerenja (self,style=1):
+		if style==0:
+			with open(self.outputneuronsfile, "r") as file:
+				outputneurons=np.reshape(np.loadtxt(file),(-1,self.n[len(self.n)-1].size))
+			with open(self.resultfile, "r") as file:
+				result=np.reshape(np.loadtxt(file),(-1,self.n[len(self.n)-1].size))
+			with open(self.changedneuronsfile, "r") as file:
+				changedneurons=np.reshape(np.loadtxt(file),(sum(self.arhitecture)+sum([i.size for i in self.w])-self.arhitecture[0],-1,self.n[len(self.n)-1].size))
+		elif style==1:
+			with open(self.outputneuronsfile, "rb") as file:
+				outputneurons=np.reshape(np.load(file),(-1,self.n[len(self.n)-1].size))
+			with open(self.resultfile, "rb") as file:
+				result=np.reshape(np.load(file),(-1,self.n[len(self.n)-1].size))
+			with open(self.changedneuronsfile, "rb") as file:
+				changedneurons=np.reshape(np.load(file),(sum(self.arhitecture)+sum([i.size for i in self.w])-self.arhitecture[0],-1,self.n[len(self.n)-1].size))
 		open(self.outputneuronsfile, 'w').close()
 		open(self.resultfile, 'w').close()
 		open(self.changedneuronsfile, 'w').close()
