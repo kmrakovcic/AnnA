@@ -7,7 +7,7 @@ class Brain:
 		self.w=[]
 		self.z=[]
 		self.delta=[]
-		self.alpha=0.1
+		self.alpha=0.5
 		self.mjerenja=mjerenja
 		self.arhitecture=np.array(arhitecture)
 		self.activationfunction=Activationfunction.sigmoid
@@ -41,7 +41,7 @@ class Brain:
 
 	def korak3 (self):
 		M=self.mjerenja[1].shape[1]
-		for l in range (1,len(self.n)-1):
+		for l in range (1,len(self.n)):
 			self.w[l]=self.w[l]-(self.alpha/M)*self.delta[l].dot(self.n[l-1].T)
 			self.b[l]=self.b[l]-(self.alpha/M)*np.sum (self.delta[l],axis=1)
 
