@@ -12,20 +12,28 @@ def getinput (folder):
 	result=result.reshape (len(os.listdir(folder)),-1).T
 	return input, result
 
+def printstate (brain, mjerenja):
+	mj=mjerenja[1].T
+	k1=""
+	k2=""
+	k=""
+	for i1,j1 in enumerate(brain.n[len(brain.n)-1].T):
+		for i2,j2 in enumerate (j1):
+			k1+="|"+str ("{:5.2f}".format(j2))+"|   " 
+			k2+="|"+str ("{:5.2f}".format(mj[i1][i2]))+"|   "
+		k+=k1+"---------------------------------->   "+k2+"\n"
+		k1=""
+		k2=""
+	return k
+
 mjerenja=getinput ("tests2x2")
 a=Brain ([4,3,2],mjerenja)
 a.birth ()
 x1=""
-#while not (x1=="x"):
-for j in range (10000):
-	print (j)
+for j in range (1,10001):
 	a.korak1 ()
 	a.korak2 ()
 	a.korak3 ()
-os.system('cls')
-print (a.n[0])
-print ("|||||")
-print (a.n[2])
-print("________")
-print (mjerenja[1])
-#	x1=input()
+	if  (j%500==0):
+		print (str(j)+". mjerenje")
+		print (printstate (a,mjerenja))
