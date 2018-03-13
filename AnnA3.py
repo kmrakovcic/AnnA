@@ -9,9 +9,11 @@ class Brain:
 		self.delta=[]
 		self.alpha=alfa
 		self.mjerenja=mjerenja
-		self.arhitecture=np.array(arhitecture)
 		self.activationfunction=activationFunction
 		self.errorFunction=errorFunction
+		arhitecture[0]=mjerenja[0].shape [0]
+		arhitecture[len(arhitecture)-1]=mjerenja[1].shape[0]
+		self.arhitecture=np.array(arhitecture)
 
 	def birth (self):
 		M=self.mjerenja[1].shape[1]
