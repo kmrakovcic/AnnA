@@ -40,6 +40,8 @@ class Errorfunction:
 		return np.sum(np.square(neurons-result))
 	
 	def cost (neurons, result):
+		neurons=neurons.T
+		result=result.T
 		if 1 in neurons:
 			neurons=neurons-np.isin(neurons,1)*0.1
 		elif 0 in neurons:

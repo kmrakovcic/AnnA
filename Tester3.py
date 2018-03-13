@@ -73,28 +73,31 @@ def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer
 		arh=[n,hidden1,m]
 	return arh
 
-def mainloop (mjerfolder="",arh=[0],briteracija=1):
-	brojprinteva=2
+def mainloop (mjerfolder="",arh=[0], briteracija=1, alpha=0.1):
+	brojprinteva=1
 	mjerenja=imput(mjerfolder)
 	if arh==[0]:
-		arh= automatic_arh(mjerenja,2) 
-	arh=[784,16,16,10]
-	a=Brain (arh,mjerenja)
+		arh= automatic_arh(mjerenja,2)
+	a=Brain (arh,mjerenja,alpha)
 	a.birth ()
 	print (a.arhitecture)
 	scr=""
 	for j in range (1,briteracija+1):
-		print (str ("{:5.2f}".format(j/briteracija*100)))
 		a.korak1 ()
 		a.korak2 ()
 		a.korak3 ()
+		error=a.errorFunction (a.n[len(a.n)-1], mjerenja[1])
+		progressbar="ITERATION: "+str(j)+"/"+str(briteracija)+"  "+str ("{:3.0f}".format(j/briteracija*100))+"% ----- ERROR: "+str ("{:7.5f}".format(error))
+		print (progressbar)
 		if  (j%(briteracija//brojprinteva)==0):
-			scr+=str(j)+". iteracija\n"+printstate (a,mjerenja)
+			scr+=str(j)+". iteration\n"+printstate (a,mjerenja)
+	input ("Press Any Key To See Log")
 	os.system('cls')
 	print (scr)
 
 mjerfolder=input ("Folder mjerenja?\n")
 briteracija=int(input ("Broj iteracija?\n"))
+alpha=float(input ("Learning rate?\n"))
 i=int (input("Broj hidden layera?\n"))
 if i==0: arh=[0]
 else:
@@ -102,5 +105,5 @@ else:
 	for j in range (1,i+1):
 		arh.append ( int( input("Broj neurona u "+str(j)+". hidden layeru?\n" ) ) )
 	arh.append (1)
-mainloop (mjerfolder,arh ,briteracija)
+mainloop (mjerfolder, arh, briteracija, alpha)
 input()
