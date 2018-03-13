@@ -34,6 +34,7 @@ for j in range (1,1001):
 	a.korak1 ()
 	a.korak2 ()
 	a.korak3 ()
-	if  (j%10==0):
+	if  (j%100==0):
 		print (str(j)+". mjerenje")
 		print (printstate (a,mjerenja))
+

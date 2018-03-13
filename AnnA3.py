@@ -1,7 +1,7 @@
 import numpy as np
 from AnnA3mathlib import *
 class Brain: 
-	def __init__ (self, arhitecture, mjerenja, alfa=0.1):
+	def __init__ (self, arhitecture, mjerenja, alfa=0.1, activationFunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost):
 		self.n=[]
 		self.b=[]
 		self.w=[]
@@ -10,7 +10,8 @@ class Brain:
 		self.alpha=alfa
 		self.mjerenja=mjerenja
 		self.arhitecture=np.array(arhitecture)
-		self.activationfunction=Activationfunction.sigmoid
+		self.activationfunction=activationFunction
+		self.errorFunction=errorFunction
 
 	def birth (self):
 		M=self.mjerenja[1].shape[1]
@@ -37,7 +38,7 @@ class Brain:
 			if l==(len(self.n)-1):
 				self.delta[l]=self.n[l]-y
 			else:
-				self.delta[l]=self.w[l+1].T.dot(self.delta[l+1])*self.activationfunction (self.z[l],True)
+				self.delta[l]=self.w[l+1].T.dot(self.delta[l+1])*self.activationfunction (self.z[l], d=True)
 
 	def korak3 (self):
 		M=self.mjerenja[1].shape[1]
@@ -47,11 +48,4 @@ class Brain:
 
 
 if __name__ == '__main__':
-	brm=5
-	arh=[4,3,2]
-	mjerenja=[np.random.random ( (arh[0],brm) ),np.random.random ((arh[len(arh)-1],brm))]
-	a=Brain (arh, mjerenja)
-	a.birth ()
-	a.korak1 ()
-	a.korak2 ()
-	a.korak3 ()
+	pass
