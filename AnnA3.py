@@ -1,13 +1,13 @@
 import numpy as np
 from AnnA3mathlib import *
 class Brain: 
-	def __init__ (self, arhitecture, mjerenja):
+	def __init__ (self, arhitecture, mjerenja, alfa=0.1):
 		self.n=[]
 		self.b=[]
 		self.w=[]
 		self.z=[]
 		self.delta=[]
-		self.alpha=0.5
+		self.alpha=alfa
 		self.mjerenja=mjerenja
 		self.arhitecture=np.array(arhitecture)
 		self.activationfunction=Activationfunction.sigmoid

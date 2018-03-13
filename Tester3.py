@@ -6,7 +6,7 @@ def getinput (folder):
 	input=np.empty (0)
 	result=np.empty (0)
 	for i in os.listdir(folder):
-		input=np.append(input, np.ravel(cv2.imread(folder+"\\"+i,0)/255),axis=0)
+		input=np.append(input, np.ravel(cv2.imread(folder+"/"+i,0)/255),axis=0)
 		result=np.append(result,np.array(os.path.splitext(i)[0].split ("(")[0].split ("-")).astype(np.float))
 	input=input.reshape (len(os.listdir(folder)),-1).T
 	result=result.reshape (len(os.listdir(folder)),-1).T
@@ -27,13 +27,13 @@ def printstate (brain, mjerenja):
 	return k
 
 mjerenja=getinput ("tests2x2")
-a=Brain ([4,3,2],mjerenja)
+a=Brain ([4,20,2],mjerenja,alfa=5)
 a.birth ()
 x1=""
-for j in range (1,10001):
+for j in range (1,1001):
 	a.korak1 ()
 	a.korak2 ()
 	a.korak3 ()
-	if  (j%500==0):
+	if  (j%10==0):
 		print (str(j)+". mjerenje")
 		print (printstate (a,mjerenja))
