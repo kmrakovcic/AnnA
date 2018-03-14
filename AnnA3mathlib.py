@@ -48,7 +48,13 @@ class Errorfunction:
 			neurons=neurons+np.isin(neurons,0)*0.1
 		return -np.sum(result*np.log(neurons)+(1-result)*np.log(1-neurons))
 
+def getaccuracy (n,y):
+	n=n.T
+	y=y.T
+	return 100*((abs(n-y)<0.5).dot(np.ones(n.shape[1]))==n.shape[1]).sum (axis=0)/n.shape[0]
+
+
 if __name__ == '__main__':
-	a=np.array ([[1,2,3],[1,2,3],[1,2,3]])
-	b=np.any(a>3)
-	print (b)
+	a=np.array ([[0.1,0.7,0.3,0.6],[0.1,0.7,0.3,0.6]])
+	b=np.array ([[0,1,1,1],[0,1,0,1]])
+	print(getaccuracy (a,b))
