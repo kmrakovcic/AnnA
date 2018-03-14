@@ -39,7 +39,7 @@ def imput (folder):
 	elif folder in thisf:
 		return inputfromjpg (folder)
 	else:
-		return np.array( [[1,0], [0,1], [0,0], [1,1]]).T, np.array([[1,1,0,0]]) 
+		return np.array([[1,0,0,1],[0,1,0,1]]), np.array([[1,1,0,0]]) 
 
 def printstate (brain, mjerenja):
 	mj=mjerenja[1].T
@@ -73,37 +73,40 @@ def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer
 		arh=[n,hidden1,m]
 	return arh
 
-def mainloop (mjerfolder="",arh=[0], briteracija=1, alpha=0.1):
+def mainloop (mjerfolder="",arh=[0], briteracija=1, alpha=1):
 	brojprinteva=1
 	mjerenja=imput(mjerfolder)
 	if arh==[0]:
 		arh= automatic_arh(mjerenja,2)
 	a=Brain (arh,mjerenja,alpha)
 	a.birth ()
-	print (a.arhitecture)
 	scr=""
 	for j in range (1,briteracija+1):
 		a.korak1 ()
 		a.korak2 ()
 		a.korak3 ()
 		error=a.errorFunction (a.n[len(a.n)-1], mjerenja[1])
-		progressbar="ITERATION: "+str(j)+"/"+str(briteracija)+"  "+str ("{:3.0f}".format(j/briteracija*100))+"% ----- ERROR: "+str ("{:7.5f}".format(error))
+		iscorrect=np.all(abs(mjerenja[1]-a.n[len(a.n)-1])<0.5)
+		progressbar="ITERATION: "+str(j)+"/"+str(briteracija)+"  "+str ("{:3.0f}".format(j/briteracija*100))+"% ----- ERROR: "+str ("{:7.5f}".format(error))+"  "+str(iscorrect)
 		print (progressbar)
 		if  (j%(briteracija//brojprinteva)==0):
 			scr+=str(j)+". iteration\n"+printstate (a,mjerenja)
 	input ("Press Any Key To See Log")
 	os.system('cls')
 	print (scr)
+	input()
 
-mjerfolder=input ("Folder mjerenja?\n")
-briteracija=int(input ("Broj iteracija?\n"))
-alpha=float(input ("Learning rate?\n"))
-i=int (input("Broj hidden layera?\n"))
-if i==0: arh=[0]
-else:
-	arh=[1]
-	for j in range (1,i+1):
-		arh.append ( int( input("Broj neurona u "+str(j)+". hidden layeru?\n" ) ) )
-	arh.append (1)
-mainloop (mjerfolder, arh, briteracija, alpha)
-input()
+def askuser ():
+	mjerfolder=input ("Folder mjerenja?\n")
+	briteracija=int(input ("Broj iteracija?\n"))
+	alpha=float(input ("Learning rate?\n"))
+	i=int (input("Broj hidden layera?\n"))
+	if i==0: arh=[0]
+	else:
+		arh=[1]
+		for j in range (1,i+1):
+			arh.append ( int( input("Broj neurona u "+str(j)+". hidden layeru?\n" ) ) )
+		arh.append (1)
+	mainloop (mjerfolder, arh, briteracija, alpha)
+
+askuser ()

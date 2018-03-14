@@ -47,3 +47,8 @@ class Errorfunction:
 		elif 0 in neurons:
 			neurons=neurons+np.isin(neurons,0)*0.1
 		return -np.sum(result*np.log(neurons)+(1-result)*np.log(1-neurons))
+
+if __name__ == '__main__':
+	a=np.array ([[1,2,3],[1,2,3],[1,2,3]])
+	b=np.any(a>3)
+	print (b)
