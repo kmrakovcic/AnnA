@@ -55,6 +55,4 @@ def getaccuracy (n,y):
 
 
 if __name__ == '__main__':
-	a=np.array ([[0.1,0.7,0.3,0.6],[0.1,0.7,0.3,0.6]])
-	b=np.array ([[0,1,1,1],[0,1,0,1]])
-	print(getaccuracy (a,b))
+	pass
