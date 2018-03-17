@@ -55,6 +55,14 @@ def printstate (brain, mjerenja):
 		k2=""
 	return k
 
+def weights_to_pic (brain):
+	vect=brain.w[1]
+	for i in range (vect.shape[0]):
+		p=vect [i].reshape(int(vect.shape[1]**(0.5)),-1)
+		vis=p if i== 0  else np.concatenate((vis, p), axis=1)
+	cv2.imshow('image',vis)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
 
 def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer alpha>2, 2 hiddden layer alpha=2
 	N=mjerenja[1].shape[1] #sample size
@@ -73,19 +81,21 @@ def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer
 		arh=[n,hidden1,m]
 	return arh
 
-def mainloop (mjerfolder="",arh=[0], briteracija=1, alpha=1):
+def mainloop (mjerfolder="",arh=[0], briteracija=100, alpha=1):
 	mjerenja=imput(mjerfolder)
 	if arh==[0]:
-		arh= automatic_arh(mjerenja,2)
+		arh= automatic_arh(mjerenja)
 	a=Brain (arh,mjerenja,alpha)
 	a.birth ()
 	for j in range (1,briteracija+1):
 		error,accuracy= a.learn ()
-		progressbar="ITERATION: "+str(j)+"/"+str(briteracija)+" ----- ERROR: "+str ("{:7.5f}".format(error))+" ACCURACY: "+str ("{:7.5f}".format(accuracy))
+		progressbar="EPOH: "+str(j)+"/"+str(briteracija)+" ----- ERROR: "+str ("{:7.5f}".format(error))+" ACCURACY: "+str ("{:7.5f}".format(accuracy))
 		print (progressbar)
-	input ("Press Any Key To Exit")
+	a.savebrain (mjerfolder+"_save.npy")
+	#input ("Press Any Key To Exit")
+	return a
 
-def askuser ():
+def ask_user ():
 	mjerfolder=input ("Folder mjerenja?\n")
 	briteracija=int(input ("Broj iteracija?\n"))
 	alpha=float(input ("Learning rate?\n"))
@@ -99,4 +109,6 @@ def askuser ():
 	return mjerfolder, arh, briteracija, alpha
 
 
-mainloop (*askuser ())
+#mainloop (*ask_user ())
+t=mainloop ("testsnum", [784,30,10])
+weights_to_pic (t)

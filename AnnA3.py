@@ -57,5 +57,28 @@ class Brain:
 		err=self.errorFunction (self.n[len(self.n)-1],self.mjerenja[1])
 		return err,acc
 
+	def savebrain (self,name):
+		output=np.append(np.array(len(self.arhitecture)),self.arhitecture )
+		for i in range(1,len(self.arhitecture)):
+			output=np.append(output, np.append (self.w[i].flatten(),self.b[i].flatten()) )
+		with open (name, "wb") as file:
+			output.tofile (file)
+
+	def loadbrain (self, name):
+		b=[0]
+		w=[0]
+		with open (name, "rb") as file:
+			input=np.fromfile(file)
+		l,arh,o=np.split(input,[1, int(input[0])+1 ])
+		arh=arh.astype (int)
+		for i in range (1,len(arh)):
+			w1,b1,o=np.split(o, [arh[i-1]*arh[i], (arh[i-1]*arh[i])+arh[i] ] )
+			w1=w1.reshape ([arh[i],arh[i-1]])
+			b.append(b1)
+			w.append(w1)
+		self.arhitecture=arh
+		self.w=w
+		self.b=b
+
 if __name__ == '__main__':
 	pass
