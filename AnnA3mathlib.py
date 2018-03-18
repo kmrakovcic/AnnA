@@ -19,7 +19,9 @@ class Activationfunction:
 
 	def sigmoid(x, d=False):
 		y= 1 / (1 + np.exp(-x))
-		return y if d==False else y*(1-y)
+		if d:
+			return y*(1-y)
+		return y
 
 	def tanh(x):
 		y=(2/(1+np.exp(-2*x)))-1

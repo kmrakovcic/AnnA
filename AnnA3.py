@@ -1,5 +1,7 @@
 import numpy as np
+from numpy.linalg import norm
 from AnnA3mathlib import *
+
 class Brain: 
 	def __init__ (self, arhitecture, mjerenja=[], alfa=0.1, activationFunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost):
 		self.n=[]
@@ -42,17 +44,36 @@ class Brain:
 			else:
 				self.delta[l]=self.w[l+1].T.dot(self.delta[l+1])*self.activationfunction (self.z[l], d=True)
 
+			# print(str(l)+". Delta: ",np.sum(self.delta[l]), norm(self.delta[l]))
+
 	def evolve (self):
 		M=self.mjerenja[1].shape[1]
 		for l in range (1,len(self.n)):
 			self.w[l]=self.w[l]-(self.alpha/M)*self.delta[l].dot(self.n[l-1].T)
 			self.b[l]=self.b[l]-(self.alpha/M)*np.sum (self.delta[l],axis=1)
+			self.delta[l]=0
 
-	def learn (self, mjerenja=[]):
+	def learn (self, batchNum=1, mjerenja=[]):
 		if not mjerenja==[]: self.mjerenja=mjerenja
-		self.fowardpropagation ()
-		self.backpropagation ()
-		self.evolve ()
+		M = self.mjerenja[1].shape[1]
+		batchSize=M//batchNum
+		if M%batchNum > 0:
+			batchNum+=1
+
+		tmpMjerenja = self.mjerenja
+
+		self.mjerenja= [None,None]
+		for i in range(batchNum):
+			for j in range(2):
+				self.mjerenja[j]=tmpMjerenja[j][:,i*batchSize:(i+1)*batchSize]
+			self.fowardpropagation ()
+			self.backpropagation ()
+			self.evolve ()
+
+		self.mjerenja=tmpMjerenja
+		if batchNum>0:
+			self.fowardpropagation ()
+
 		acc=getaccuracy (self.n[len(self.n)-1],self.mjerenja[1])
 		err=self.errorFunction (self.n[len(self.n)-1],self.mjerenja[1])
 		return err,acc

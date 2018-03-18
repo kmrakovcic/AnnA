@@ -72,14 +72,15 @@ def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer
 		arh=[n,hidden1,m]
 	return arh
 
-def mainloop (mjerfolder="",arh=[0], briteracija=1, alpha=1):
+def mainloop (mjerfolder="",arh=[0], briteracija=1, alpha=1, batchNum=1):
 	mjerenja=imput(mjerfolder)
 	if arh==[0]:
 		arh= automatic_arh(mjerenja)
+
 	a=Brain (arh,mjerenja,alpha)
 	a.birth ()
 	for j in range (1,briteracija+1):
-		error,accuracy= a.learn ()
+		error,accuracy= a.learn (batchNum=batchNum)
 		progressbar="EPOH: "+str(j)+"/"+str(briteracija)+" ----- ERROR: "+str ("{:7.5f}".format(error))+" ACCURACY: "+str ("{:7.5f}".format(accuracy))
 		print (progressbar)
 	a.savebrain (mjerfolder+"_save.npy")
@@ -101,4 +102,4 @@ def ask_user ():
 
 
 #mainloop (* ask_user () )
-mainloop ("testsnum",[784,10],100)
+mainloop ("testsnum",[784,100,10],1000, alpha=0.01, batchNum=20)
