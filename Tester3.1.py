@@ -2,7 +2,7 @@ import sqlite3
 from AnnA3 import *
 import numpy as np
 
-def getdata (TableName="Iris_dataset",db_file='data.db'):
+def getdata (TableName="Iris_dataset",db_file='data.db'): #get data from SQL
 	try:
 		db = sqlite3.connect(db_file)
 	except Exception as e:
@@ -23,8 +23,26 @@ def getdata (TableName="Iris_dataset",db_file='data.db'):
 	rezultati=np.array(c.fetchall())
 	return np.array(input.T), np.array(output.T)
 
-def gogo (lista, arh=[0], briteracija=1, alpha=0.1):
-	arh=[4,3]
+def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer alpha>2, 2 hiddden layer alpha=2
+	N=mjerenja[1].shape[1] #sample size
+	m=mjerenja[1].shape[0] #output neurons
+	n=mjerenja[0].shape [0] #input neurons
+	if (alpha==0):
+		arh=[n,m]
+	elif (alpha<2):
+		hidden1=int(round(math.sqrt((m+2)*N)+2*math.sqrt(N/(m+2))))
+		hidden2=int (round (m*math.sqrt(N/(m+2))))
+		arh=[n,hidden1,hidden2,m]
+	else:
+		hidden1=int(round(N/(alpha*(n+m))))
+		if hidden1==0: 
+			hidden1=1
+		arh=[n,hidden1,m]
+	return arh
+
+def gogo (lista, arh=[0], briteracija=5, alpha=0.1):
+	if arh==[0]:
+		arh= automatic_arh(lista)
 	mozak=Brain (arh, lista, alpha)
 	mozak.birth()
 	for j in range (1,briteracija+1):
@@ -34,6 +52,4 @@ def gogo (lista, arh=[0], briteracija=1, alpha=0.1):
 	mjerfolder="test"
 	mozak.savebrain (mjerfolder+"_save.npy")
 
-
-gogo(getdata())
-
+gogo( getdata() )

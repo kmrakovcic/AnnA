@@ -72,7 +72,7 @@ def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer
 		arh=[n,hidden1,m]
 	return arh
 
-def mainloop (mjerfolder="",arh=[0], briteracija=1, alpha=1):
+def mainloop (mjerfolder="",arh=[0], briteracija=5, alpha=1):
 	mjerenja=imput(mjerfolder)
 	if arh==[0]:
 		arh= automatic_arh(mjerenja)
