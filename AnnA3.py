@@ -1,4 +1,3 @@
-import numpy as np
 from AnnA3mathlib import *
 
 def resetParameters (arh):
@@ -11,7 +10,7 @@ def resetParameters (arh):
 	return w,b
 
 class Brain: 
-	def __init__ (self, arhitecture, mjerenja=[], alpha=0.1, activationFunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost, fixedAlpha=True):
+	def __init__ (self, arhitecture=[1,1], mjerenja=[], alpha=0.1, activationFunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost, fixedAlpha=True):
 		self.n=[]
 		self.b=[]
 		self.w=[]
@@ -23,13 +22,16 @@ class Brain:
 		self.mjerenja=mjerenja
 		self.activationfunction=activationFunction
 		self.errorFunction=errorFunction
-		arhitecture[0]=mjerenja[0].shape [0]
-		arhitecture[len(arhitecture)-1]=mjerenja[1].shape[0]
+		if not mjerenja==[]:
+			arhitecture[0]=mjerenja[0].shape [0]
+			arhitecture[len(arhitecture)-1]=mjerenja[1].shape[0]
 		self.arhitecture=np.array(arhitecture)
 		self.fixedAlpha = fixedAlpha
 
 	def birth (self):
-		M=self.mjerenja[1].shape[1]
+		if not self.mjerenja==[]:
+			M=self.mjerenja[1].shape[1]
+		else: M=1
 		self.b=[0]
 		self.w=[0]
 		self.newb=[0]

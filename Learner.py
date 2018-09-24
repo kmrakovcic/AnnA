@@ -1,7 +1,6 @@
 from AnnA3 import *
-from SQL   import *
 import sqlite3
-import numpy as np
+import os
 
 def getdata (TableName="Iris_dataset",db_file='data.db'): #get data from SQL
 	try:
@@ -41,21 +40,28 @@ def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer
 		arh=[n,hidden1,m]
 	return arh
 
-def learner (lista, arh=[0], briteracija=1, alpha=0.1):
+def learner (lista, arh=[0], briteracija=10000, alpha=0.1, name_brain="Brain1"):
+	output=""
 	if arh==[0]:
 		arh= automatic_arh(lista)
 	mozak=Brain (arh, lista, alpha=alpha, fixedAlpha=False)
 	mozak.birth()
+	
+	if (name_brain+"_save.npy") in os.listdir("."):
+		mozak.loadbrain (name_brain+"_save.npy")
+
 	for j in range (1,briteracija+1):
 		convergance= False
 		while not convergance:
 			error,accuracy,convergance= mozak.learn ()
 
-		progressbar="EPOH: "+str(j)+"/"+str(briteracija)+" ----- ERROR: "+str ("{:7.5f}".format(error))+" ACCURACY: "+str ("{:7.5f}".format(accuracy))
+		progressbar="EPOH: "+str("{:7.0f}".format(j))+"/"+str(briteracija)+" ----- ERROR: "+str ("{:9.4f}".format(error))+"   ACCURACY: "+str ("{:7.4f}".format(accuracy))
 		if not mozak.fixedAlpha:
-			progressbar+= " LEARNING RATE: "+str(mozak.alpha)
-		print (progressbar)
-	mjerfolder="test"
-	mozak.savebrain (mjerfolder+"_save.npy")
+			progressbar+= "   LEARNING RATE: "+str("{:7.4f}".format(mozak.alpha))
+		output+=progressbar+"\n"
+		print(progressbar)
+	mozak.savebrain (name_brain+"_save.npy")
+	return output
 
-learner (getdata())
+if __name__ == '__main__':
+	learner (getdata())
