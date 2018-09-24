@@ -41,14 +41,19 @@ def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer
 		arh=[n,hidden1,m]
 	return arh
 
-def learner (lista, arh=[0], briteracija=10, alpha=0.1):
+def learner (lista, arh=[0], briteracija=1, alpha=0.1):
 	if arh==[0]:
 		arh= automatic_arh(lista)
-	mozak=Brain (arh, lista, alpha)
+	mozak=Brain (arh, lista, alpha=alpha, fixedAlpha=False)
 	mozak.birth()
 	for j in range (1,briteracija+1):
-		error,accuracy= mozak.learn ()
+		convergance= False
+		while not convergance:
+			error,accuracy,convergance= mozak.learn ()
+
 		progressbar="EPOH: "+str(j)+"/"+str(briteracija)+" ----- ERROR: "+str ("{:7.5f}".format(error))+" ACCURACY: "+str ("{:7.5f}".format(accuracy))
+		if not mozak.fixedAlpha:
+			progressbar+= " LEARNING RATE: "+str(mozak.alpha)
 		print (progressbar)
 	mjerfolder="test"
 	mozak.savebrain (mjerfolder+"_save.npy")
