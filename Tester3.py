@@ -101,4 +101,4 @@ def ask_user ():
 
 
 #mainloop (* ask_user () )
-mainloop ("testsnum",[784,10],100)
+mainloop ("tests2x2",[784,10],1)
