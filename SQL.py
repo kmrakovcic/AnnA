@@ -33,7 +33,6 @@ def sql_to_list (TableName="Iris_dataset",db_file=':memory:'):
 	mjerenja=c.fetchall()
 	return mjerenja
 
-
 def list_to_sql(lista, size, name="Iris_dataset",db_file=':memory:'):
 	#building SQL command for creating table
 	create_table_sql="CREATE TABLE IF NOT EXISTS "+name+"\n ("
@@ -68,9 +67,7 @@ def edit_list(lista):
 	out=np.hstack((lista[:,:-1], result,lista[:,-1][:, np.newaxis]))
 	return out,[lista.shape[1]-1, result.shape[1]]
 
-
-
-def main():
+def mainSQL():
 	URL=input ("URL?: ")
 	name=input ("Table name?: ")
 	db=input ("Database?: ")
@@ -80,4 +77,4 @@ def main():
 	input ("PRESS ENTER TO EXIT")
 
 if __name__ == '__main__':
-	main()
+	mainSQL()
