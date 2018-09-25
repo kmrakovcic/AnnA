@@ -1,6 +1,7 @@
 from AnnA3 import *
 import sqlite3
 import os
+import pickle
 
 def getdata (TableName="Iris_dataset",db_file='data.db'): #get data from SQL
 	try:
@@ -40,28 +41,38 @@ def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer
 		arh=[n,hidden1,m]
 	return arh
 
-def learner (lista, arh=[0], briteracija=10000, alpha=0.1, name_brain="Brain1"):
+def learner (lista, alpha=0.1, activationfunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost, arh=[0], fixedAlpha=False, briteracija=1, name_brain="UnnamedBrain"):
 	output=""
+	start=1
 	if arh==[0]:
 		arh= automatic_arh(lista)
-	mozak=Brain (arh, lista, alpha=alpha, fixedAlpha=False)
+
+	if (name_brain+"_save.npy") in os.listdir("."):
+		with open (name_brain+"_info.npy", "rb") as file:
+			[alpha, activationfunction, errorFunction, arh, fixedAlpha, start, error, accuracy] = pickle.load(file)
+
+	mozak=Brain (arhitecture=arh, mjerenja=lista, alpha=alpha, activationFunction=activationfunction, errorFunction=errorFunction, fixedAlpha=fixedAlpha)
 	mozak.birth()
 	
 	if (name_brain+"_save.npy") in os.listdir("."):
 		mozak.loadbrain (name_brain+"_save.npy")
 
-	for j in range (1,briteracija+1):
+	for j in range (start, briteracija+start):
 		convergance= False
 		while not convergance:
 			error,accuracy,convergance= mozak.learn ()
 
-		progressbar="EPOH: "+str("{:7.0f}".format(j))+"/"+str(briteracija)+" ----- ERROR: "+str ("{:9.4f}".format(error))+"   ACCURACY: "+str ("{:7.4f}".format(accuracy))
+		progressbar="EPOH: "+str("{:7.0f}".format(j))+"/"+str(briteracija+start-1)+" ----- ERROR:"+str ("{:9.4f}".format(error))+"   ACCURACY: "+str ("{:7.4f}".format(accuracy))
 		if not mozak.fixedAlpha:
 			progressbar+= "   LEARNING RATE: "+str("{:7.4f}".format(mozak.alpha))
 		output+=progressbar+"\n"
 		print(progressbar)
 	mozak.savebrain (name_brain+"_save.npy")
+	with open (name_brain+"_info.npy", "wb") as file:
+		pickle.dump([mozak.alpha, mozak.activationfunction, mozak.errorFunction, mozak.arhitecture, mozak.fixedAlpha, briteracija+start, error, accuracy], file)
 	return output
 
+
 if __name__ == '__main__':
-	learner (getdata())
+	learner (getdata(),briteracija=100, arh=[4,4,3],activationfunction=Activationfunction.sigmoid)
+	input ()

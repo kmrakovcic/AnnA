@@ -17,7 +17,7 @@ def getdata (TableName="Iris_dataset",db_file='data.db'): #get data from SQL
 	input=np.array(c.fetchall())
 	return np.array(input.T)
 
-def tester (lista, arh=[1,1], name_brain="Brain1"):
+def tester (lista, arh=[1,1], name_brain="UnnamedBrain"):
 	mozak=Brain (arh,[lista,lista])
 	mozak.birth()
 	mozak.loadbrain (name_brain+"_save.npy")
@@ -26,3 +26,4 @@ def tester (lista, arh=[1,1], name_brain="Brain1"):
 
 if __name__ == '__main__':
 	print(np.round(tester(getdata (),arh=[4,3]).T,0))
+	input()

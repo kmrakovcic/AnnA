@@ -21,9 +21,10 @@ class Activationfunction:
 		y= 1 / (1 + np.exp(-x))
 		return y if d==False else y*(1-y)
 
-	def tanh(x):
-		y=(2/(1+np.exp(-2*x)))-1
-		return y
+	def tanh(x, d=False):
+		#y=(2/(1+np.exp(-2*x)))-1
+		if d: return np.tanh(x)
+		else: return 1-(np.tanh(x)*np.tanh(x))
 
 	def ReLU(x, d=False):
 		y = x.clip (0, out=x)
@@ -31,7 +32,7 @@ class Activationfunction:
 			y[y>0]=1
 		return y
 
-	def leakyReLU(x):
+	def leakyReLU(x, d=False):
 		y=np.where (x<0, x*0.01, x)
 		return y
 
