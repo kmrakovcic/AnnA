@@ -13,12 +13,12 @@ def getdata (TableName="Iris_dataset",db_file='data.db'): #get data from SQL
 	col_name_list=""
 	for i in [tuple[0] for tuple in c.description] [:-1]:
 		col_name_list+=i+","
-	col_name_list_input=col_name_list.split("OutputNeuron")[0]
-	col_name_list_output=col_name_list.split("InputNeuron")[-1][3:]
+	col_name_list_input  = ",".join([s for s in col_name_list.split(",")[:-1] if "Input"   in s])
+	col_name_list_output = ",".join([s for s in col_name_list.split(",")[:-1] if "Output"  in s])
 	
-	c.execute("SELECT "+col_name_list_input[:-1]+" FROM "+TableName)
+	c.execute("SELECT "+col_name_list_input+" FROM "+TableName)
 	input=np.array(c.fetchall())
-	c.execute("SELECT "+col_name_list_output[:-1]+" FROM "+TableName)
+	c.execute("SELECT "+col_name_list_output+" FROM "+TableName)
 	output=np.array(c.fetchall())
 	c.execute("SELECT Result FROM "+TableName)
 	rezultati=np.array(c.fetchall())
@@ -74,5 +74,5 @@ def learner (lista, alpha=0.1, activationfunction=Activationfunction.sigmoid, er
 
 
 if __name__ == '__main__':
-	learner (getdata(),briteracija=100, arh=[4,4,3],activationfunction=Activationfunction.sigmoid)
+	learner (getdata(),briteracija=1000, arh=[4,10,3],activationfunction=Activationfunction.sigmoid)
 	input ()
