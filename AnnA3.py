@@ -22,6 +22,7 @@ class Brain:
 		self.mjerenja=mjerenja
 		self.activationfunction=activationFunction
 		self.errorFunction=errorFunction
+		self.score=np.random.uniform()
 		if not mjerenja==[]:
 			arhitecture[0]=mjerenja[0].shape [0]
 			arhitecture[len(arhitecture)-1]=mjerenja[1].shape[0]
@@ -130,6 +131,7 @@ class Brain:
 		self.arhitecture=arh
 		self.w=w
 		self.b=b
+
 
 if __name__ == '__main__':
 	pass
