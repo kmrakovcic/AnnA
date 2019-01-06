@@ -68,10 +68,10 @@ def edit_list(lista):
 	return out,[lista.shape[1]-1, result.shape[1]]
 
 def divideList (lista):
-	np.random.shuffle(lista) #TRAIN pa TEST
-	return lista[:int(round(lista.shape[0]*0.7,0)),:], lista[int(round(lista.shape[0]*0.7,0)):,:]
+	np.random.shuffle(lista) #TRAIN pa DEV pa TEST
+	return lista[:int(round(lista.shape[0]*0.6,0)),:], lista[int(round(lista.shape[0]*0.6,0)):int(round(lista.shape[0]*0.8,0)),:], lista[int(round(lista.shape[0]*0.8,0)):,:]
 
-def mainSQL(notdivided=True):
+def mainSQL(notdivided=True):   #notdivided=True djeli listu na train, dev i test
 	URL=input ("URL?: ")
 	if URL == "": URL="https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
 	name=input ("Table name?: ")
@@ -82,12 +82,13 @@ def mainSQL(notdivided=True):
 	if notdivided:
 		b=divideList (a[0])
 		list_to_sql (b[0],a[1],name+"_train",db+".db")
-		list_to_sql (b[1],a[1],name+"_test",db+".db")
-		print ("Table "+name+"_train and "+name+"_test created in database "+db)
+		list_to_sql (b[1],a[1],name+"_dev",db+".db")
+		list_to_sql (b[2],a[1],name+"_test",db+".db")
+		print ("Table "+name+"_train, "+name+"_dev and "+name+"_test created in database "+db)
 	else:
 		list_to_sql (a[0],a[1],name,db+".db")
 		print ("Table "+name+" created in database "+db)
 	input ("PRESS ENTER TO EXIT")
 
 if __name__ == '__main__':
-	mainSQL(False)
+	mainSQL(True)

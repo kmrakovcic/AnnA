@@ -30,6 +30,6 @@ def tester (lista, arh=[1,1], name_brain="UnnamedBrain"):
 	mozak.fowardpropagation()
 	return mozak.n[len(mozak.n)-1]
 
-if __name__ == '__main__':
+if __name__ == '__main__':	
 	print(np.round(tester(getdata (),arh=[4,3]).T,0))
 	input()

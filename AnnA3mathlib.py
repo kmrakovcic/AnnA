@@ -45,7 +45,7 @@ class Errorfunction:
 		result=result.T
 		if 1 in neurons:
 			neurons=neurons-np.isin(neurons,1)*0.1
-		elif 0 in neurons:
+		if 0 in neurons:
 			neurons=neurons+np.isin(neurons,0)*0.1
 		return -np.sum(result*np.log(neurons)+(1-result)*np.log(1-neurons))
 

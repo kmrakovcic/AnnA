@@ -41,7 +41,7 @@ def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer
 		arh=[n,hidden1,m]
 	return arh
 
-def learner (lista, alpha=0.1, activationfunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost, arh=[0], fixedAlpha=False, briteracija=1, name_brain="UnnamedBrain"):
+def learner (lista, alpha=0.1, activationfunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost, arh=[0], fixedAlpha=True, briteracija=1, name_brain="UnnamedBrain", save_brain=True, print_stats=True):
 	output=""
 	start=1
 	if arh==[0]:
@@ -66,13 +66,14 @@ def learner (lista, alpha=0.1, activationfunction=Activationfunction.sigmoid, er
 		if not mozak.fixedAlpha:
 			progressbar+= "   LEARNING RATE: "+str("{:7.4f}".format(mozak.alpha))
 		output+=progressbar+"\n"
-		print(progressbar)
-	mozak.savebrain (name_brain+"_save.npy")
-	with open (name_brain+"_info.npy", "wb") as file:
-		pickle.dump([mozak.alpha, mozak.activationfunction, mozak.errorFunction, mozak.arhitecture, mozak.fixedAlpha, briteracija+start, error, accuracy], file)
+		if print_stats:
+			print(progressbar)
+	if save_brain:
+		mozak.savebrain (name_brain+"_save.npy")
+		with open (name_brain+"_info.npy", "wb") as file:
+			pickle.dump([mozak.alpha, mozak.activationfunction, mozak.errorFunction, mozak.arhitecture, mozak.fixedAlpha, briteracija+start, error, accuracy], file)
 	return output
-
-
+	
 if __name__ == '__main__':
-	learner (getdata(),briteracija=1000, arh=[4,10,3],activationfunction=Activationfunction.sigmoid)
-	input ()
+	learner (getdata(TableName="MAGIC_train",db_file='Data.db'), briteracija=100, alpha=0.1, arh=[1,1], fixedAlpha=True, activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid])
+	#input ("PRESS ANY KEY TO EXIT")

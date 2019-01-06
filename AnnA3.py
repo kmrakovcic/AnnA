@@ -10,7 +10,7 @@ def resetParameters (arh):  #postavlja sve weightove i biase na 0
 	return w,b
 
 class Brain: 
-	def __init__ (self, arhitecture=[1,1], mjerenja=[], alpha=0.1, activationFunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost, fixedAlpha=True):
+	def __init__ (self, arhitecture=[1,1], mjerenja=[], alpha=0.1, activationFunction=[Activationfunction.sigmoid,Activationfunction.sigmoid], errorFunction=Errorfunction.cost):
 		self.n=[]           	#neuroni
 		self.b=[]				#biasi
 		self.w=[]				#weightovi
@@ -22,11 +22,17 @@ class Brain:
 		self.mjerenja=mjerenja  #izmjereni podatci
 		self.activationfunction=activationFunction  #aktivacijska funkcija
 		self.errorFunction=errorFunction 			#error funkcija
-		if not mjerenja==[]:
+		if not mjerenja==[]:    #ako su mjerenja ubačena prilikom stvaranja mozga onda mozak automatski radi arhitekturu tako da na input layer stavlja neurona koliko postoji mjerenja
 			arhitecture[0]=mjerenja[0].shape [0]
 			arhitecture[len(arhitecture)-1]=mjerenja[1].shape[0]
 		self.arhitecture=np.array(arhitecture)      #arhitektura mozga
-		self.fixedAlpha = fixedAlpha                #mjenjanje learning rate-a?
+		
+		#dio koji provjerava točnost aktivacijskih funkcija u odnosu na arhitekturu
+		if not len(self.arhitecture)==len(self.activationfunction):
+			self.activationfunction=[]  #ako nije dobre duljine vektor, stavlja sve sigmoide u vektor
+			for i in self.arhitecture:
+				self.activationfunction.append(Activationfunction.sigmoid)
+		self.activationfunction [len(self.activationfunction)-1]=Activationfunction.sigmoid #zadnji layer treba bit sigmoida
 
 	def birth (self):    #stvara tenzore alfi, neurona, weightova i biasa, te stavlja u njih random vrijednosti
 		if not self.mjerenja==[]:
@@ -43,20 +49,15 @@ class Brain:
 			if not (i==0):
 				self.b.append (np.random.random (j) )  #radi vektor biasa (duljine koliko kaže arhitektura mozga) za svaki red neurona
 				self.w.append (np.random.random ((j, self.arhitecture [i-1]))) #radi tenzor weightova za svaki red neurona, s tim da je 0. red neurona prazan i weigtovi su od pozicije 2
-				self.delta.append ([]) #prazni vektori za svaki red neurona za alfe i pomoćne neurone i weightove
-				self.neww.append ([]) 
-				self.newb.append ([])
+				self.delta.append ([]) #prazni vektori za svaki red neurona za delte i pomoćne neurone i weightove
+				self.neww.append (np.random.random (j)) 
+				self.newb.append (np.random.random ((j, self.arhitecture [i-1])))
 
 	def fowardpropagation (self, new=False):
 		self.n[0]=self.mjerenja[0] #na input red neurona stavlja izmjerene vrijednosti
-		if new:                    #gleda čisto dal radi foward propagaciju na pomoćnim neuronima ili na pravim
-			for i in range(len(self.n)-1):
-				self.z[i+1]=self.neww[i+1].dot(self.n[i])+self.newb[i+1].reshape(-1,1)
-				self.n[i+1]=self.activationfunction (self.z[i+1])
-		else:
-			for i in range(len(self.n)-1):
-				self.z[i+1]=self.w[i+1].dot(self.n[i])+self.b[i+1].reshape(-1,1)   #sumiranje prijašnijh neurona u z (neuron bez aktivacijske funkcije)
-				self.n[i+1]=self.activationfunction (self.z[i+1])                  #djelovanje aktivacijske funkcije u smjeru z-a, i to je onda neuron :D
+		for i in range(len(self.n)-1):
+			self.z[i+1]=self.w[i+1].dot(self.n[i])+self.b[i+1].reshape(-1,1)   #sumiranje prijašnijh neurona u z (neuron bez aktivacijske funkcije)
+			self.n[i+1]=self.activationfunction [i+1](self.z[i+1])                  #djelovanje aktivacijske funkcije u smjeru z-a, i to je onda neuron :D
 
 	def backpropagation (self):
 		y=self.mjerenja[1]
@@ -64,7 +65,7 @@ class Brain:
 			if l==(len(self.n)-1):                #algoritam za backpropagaciju
 				self.delta[l]=self.n[l]-y
 			else:
-				self.delta[l]=self.w[l+1].T.dot(self.delta[l+1])*self.activationfunction (self.z[l], d=True)
+				self.delta[l]=self.w[l+1].T.dot(self.delta[l+1])*self.activationfunction [l+1] (self.z[l], d=True)
 
 	def evolve (self):
 		self.neww, self.newb = resetParameters(self.arhitecture)
@@ -73,49 +74,32 @@ class Brain:
 			self.neww[l]=self.w[l]-(self.alpha/M)*self.delta[l].dot(self.n[l-1].T)
 			self.newb[l]=self.b[l]-(self.alpha/M)*np.sum (self.delta[l],axis=1)
 
-	def checkConvergence (self):
-		error1 = self.errorFunction (self.n[len(self.n)-1], self.mjerenja[1])
-		self.fowardpropagation(new=True)
-		error2 = self.errorFunction (self.n[len(self.n)-1], self.mjerenja[1])
+	def learn (self, mjerenja=[]):    #algoritam za učenje
+		if not mjerenja==[]: self.mjerenja=mjerenja #stavlja na input neurone mjerenja, ako još nisu stavljena
+		self.fowardpropagation ()   
+		self.backpropagation ()          #algoritam za učenje
+		self.evolve ()
+		self.w = self.neww               #stavlja pomoćne neurone u prave neurone (može se to elegantnije, to je tu radi legacy razloga)
+		self.b = self.newb
 
-		if error1 == error2:
-			return True
+		acc=getaccuracy (self.n[len(self.n)-1],self.mjerenja[1])        #dobiva točnost
+		err=self.errorFunction (self.n[len(self.n)-1],self.mjerenja[1])  #dobiva error preko error funkcije
+		return err,acc
 
-		if error2 < error1:
-			self.alpha += self.alpha*0.1
-			for i in range(len(self.w)):
-				self.w[i] = self.neww[i]
-				self.b[i] = self.newb[i]
-			return True
-
-		if error1 < error2:
-			self.alpha -= self.alpha*0.1
-			return False
-
-	def learn (self, mjerenja=[]):
+	def test (self, mjerenja=[]):
 		if not mjerenja==[]: self.mjerenja=mjerenja
 		self.fowardpropagation ()
-		self.backpropagation ()
-		self.evolve ()
-		if self.fixedAlpha:
-			self.w = self.neww
-			self.b = self.newb
-			conv = True
-		else:
-			conv = self.checkConvergence ()
-
 		acc=getaccuracy (self.n[len(self.n)-1],self.mjerenja[1])
-		err=self.errorFunction (self.n[len(self.n)-1],self.mjerenja[1])
-		return err,acc,conv
+		return acc
 
-	def savebrain (self,name):
+	def savebrain (self,name):   #sprema weightove i biase u datoteku
 		output=np.append(np.array(len(self.arhitecture)),self.arhitecture )
 		for i in range(1,len(self.arhitecture)):
 			output=np.append(output, np.append (self.w[i].flatten(),self.b[i].flatten()) )
 		with open (name, "wb") as file:
 			output.tofile (file)
 
-	def loadbrain (self, name):
+	def loadbrain (self, name):  #preuzima weightove i biase iz datoteke
 		b=[0]
 		w=[0]
 		with open (name, "rb") as file:
