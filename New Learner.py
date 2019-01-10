@@ -24,33 +24,65 @@ def getdata (TableName="Iris_dataset",db_file='data.db'): #get data from SQL
 	rezultati=np.array(c.fetchall())
 	return np.array(input.T), np.array(output.T)
 
-def learner (TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Data.db', briteracija=100, alpha=0.1, activationfunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost, arh=[0], name_brain="UnnamedBrain", save_brain=True, print_stats=True):
+def learner (TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Data.db', briteracija=0, nauceno=100, alpha=0.1, threshold=0.5, activationfunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost, arh=[0], name_brain="UnnamedBrain", save_brain=True, print_stats=True):
 	start=1
 	trainlista=getdata(TableName=TableNameTrain,db_file=db_file)
 	devlista = getdata(TableName=TableNameDev,db_file=db_file)
 	if (name_brain+"_save.npy") in os.listdir("."):
 		with open (name_brain+"_info.npy", "rb") as file:
-			[alpha, activationfunction, errorFunction, arh, start, error, accuracy] = pickle.load(file)
+			[alpha2, activationfunction, errorFunction, arh, start, error, accuracy] = pickle.load(file)
 
 	mozak=Brain (arhitecture=arh, mjerenja=trainlista, alpha=alpha, activationFunction=activationfunction, errorFunction=errorFunction)
 	mozak.birth()
 	if (name_brain+"_save.npy") in os.listdir("."):
 		mozak.loadbrain (name_brain+"_save.npy")
+	j=start
+	ctrl = True
+	if not (briteracija==0):
+		nuceno=100
+	try:	
+		while ctrl:
+			n,y= mozak.learn (mjerenja=trainlista)
+			accuracytrain=getstats(n,y,threshold=threshold)[0]
+			errortrain = errorFunction (n,y)
+			n,y=mozak.test (mjerenja=devlista)
+			accuracydev,f1score=getstats(n,y,threshold=threshold)[0:2]
+			if print_stats:
+				print("EPOH:"+str("{:7.0f}".format(j))+"/"+str(briteracija+start-1)+" -----"+ "   ERROR:"+str ("{:9.4f}".format(errortrain))+"   ACCURACY(train):"+str ("{:7.4f}".format(accuracytrain))+"   ACCURACY(dev):"+str ("{:7.4f}".format(accuracydev))+"   F1_SCORE:"+str ("{:7.4f}".format(f1score))  )
+			j+=1
+			if (j==start+briteracija) or (accuracydev>=nauceno): #prekida učenje ako je naučio sa dovoljnim accuracy ili je dovoljno puta učio
+				ctrl=False
+	
+	except KeyboardInterrupt: #sprema mozak u slučaju ctrl+c
+		if save_brain:
+				mozak.savebrain (name_brain+"_save.npy")
+				with open (name_brain+"_info.npy", "wb") as file:
+					pickle.dump([mozak.alpha, mozak.activationfunction, mozak.errorFunction, mozak.arhitecture, j, error, accuracy], file)
 
-	for j in range (start, briteracija+start):
-		error,accuracy= mozak.learn (mjerenja=trainlista)
-		accuracy1= mozak.test (mjerenja=devlista)
-		if print_stats:
-			print("EPOH: "+str("{:7.0f}".format(j))+"/"+str(briteracija+start-1)+"  -----"+"   ACCURACY(test): "+str ("{:7.4f}".format(accuracy))+"   ACCURACY(dev): "+str ("{:7.4f}".format(accuracy1)) + "   ERROR:"+str ("{:9.4f}".format(error)))
+	tpr=[]
+	fpr=[]
+	ppv=[]
+	accuracy=[]
+	f1score=[]
+	thrashold=[]
+	for i in np.arange (0,1,0.1):
+		accuracy1,f1score1, tpr1, fpr1, ppv1=getstats(n,y,threshold=i)
+		accuracy.append(accuracy1)
+		f1score.append(f1score1)
+		tpr.append(tpr1)
+		fpr.append(fpr1)
+		ppv.append(ppv1)
+		thrashold.append (i)
 
-	if save_brain:
+	if save_brain: #sprema mozak na kraju
 		mozak.savebrain (name_brain+"_save.npy")
 		with open (name_brain+"_info.npy", "wb") as file:
-			pickle.dump([mozak.alpha, mozak.activationfunction, mozak.errorFunction, mozak.arhitecture, briteracija+start, error, accuracy], file)
-	return briteracija+start,accuracy, accuracy1, error
+			pickle.dump([mozak.alpha, mozak.activationfunction, mozak.errorFunction, mozak.arhitecture, j, error, accuracy], file)
+	return briteracija+start, errortrain, thrashold, accuracy, f1score, tpr, fpr, ppv
 
 
 
 if __name__ == '__main__':
-	learner (TableNameTrain="MAGIC_train", TableNameDev="MAGIC_train", db_file='Data.db', briteracija=1, alpha=0.0001, arh=[1,10,10,1], activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid])
-#precision, recall, f1 score, ROC curve
+	a=learner (TableNameTrain="MAGIC_train", TableNameDev="MAGIC_train", db_file='Data.db', briteracija=0, nauceno=90, alpha=0.001, threshold=0.5, arh=[1,10,10,1], activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid])
+	print (a[4])
+#ROC curve

@@ -81,16 +81,12 @@ class Brain:
 		self.evolve ()
 		self.w = self.neww               #stavlja pomoćne neurone u prave neurone (može se to elegantnije, to je tu radi legacy razloga)
 		self.b = self.newb
-
-		acc=getaccuracy (self.n[len(self.n)-1],self.mjerenja[1])        #dobiva točnost
-		err=self.errorFunction (self.n[len(self.n)-1],self.mjerenja[1])  #dobiva error preko error funkcije
-		return err,acc
+		return self.n[len(self.n)-1], self.mjerenja[1]
 
 	def test (self, mjerenja=[]):
 		if not mjerenja==[]: self.mjerenja=mjerenja
 		self.fowardpropagation ()
-		acc=getaccuracy (self.n[len(self.n)-1],self.mjerenja[1])
-		return acc
+		return self.n[len(self.n)-1], self.mjerenja[1]
 
 	def savebrain (self,name):   #sprema weightove i biase u datoteku
 		output=np.append(np.array(len(self.arhitecture)),self.arhitecture )

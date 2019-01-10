@@ -47,7 +47,6 @@ def list_to_sql(lista, size, name="Iris_dataset",db_file=':memory:'):
 	for i in range (len(lista[0])-1):
 		insert_value_sql+="?,"
 	insert_value_sql+="?)"
-	
 	try:
 		db = sqlite3.connect(db_file)
 	except Exception as e:
@@ -59,11 +58,14 @@ def list_to_sql(lista, size, name="Iris_dataset",db_file=':memory:'):
 	db.commit()
 	db.close()
 
-def edit_list(lista):
+def edit_list(lista,  binaryclassification=True,):
 	a=np.array(list(set(np.array(lista)[:,len(lista[0])-1])))
 	lista=np.array (lista)
 	b=np.array([a,]*len(lista))
 	result=np.array([1*np.isin(b[i],lista [:,len(lista[0])-1][i]) for i in range(len(lista))])
+	if  (result.shape[1]==2) and (binaryclassification):
+		p=result.shape [0]
+		result = result[:,0].reshape ( (p,1) )
 	out=np.hstack((lista[:,:-1], result,lista[:,-1][:, np.newaxis]))
 	return out,[lista.shape[1]-1, result.shape[1]]
 
