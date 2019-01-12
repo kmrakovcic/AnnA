@@ -24,56 +24,66 @@ def getdata (TableName="Iris_dataset",db_file='data.db'): #get data from SQL
 	rezultati=np.array(c.fetchall())
 	return np.array(input.T), np.array(output.T)
 
-def automatic_arh (mjerenja,alpha=0): # 0 hiddden layera alpha=0, 1 hidden layer alpha>2, 2 hiddden layer alpha=2
-	N=mjerenja[1].shape[1] #sample size
-	m=mjerenja[1].shape[0] #output neurons
-	n=mjerenja[0].shape [0] #input neurons
-	if (alpha==0):
-		arh=[n,m]
-	elif (alpha<2):
-		hidden1=int(round(math.sqrt((m+2)*N)+2*math.sqrt(N/(m+2))))
-		hidden2=int (round (m*math.sqrt(N/(m+2))))
-		arh=[n,hidden1,hidden2,m]
-	else:
-		hidden1=int(round(N/(alpha*(n+m))))
-		if hidden1==0: 
-			hidden1=1
-		arh=[n,hidden1,m]
-	return arh
-
-def learner (lista, alpha=0.1, activationfunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost, arh=[0], fixedAlpha=True, briteracija=1, name_brain="UnnamedBrain", save_brain=True, print_stats=True):
-	output=""
+def learner (TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Data.db', briteracija=0, nauceno=100, alpha=0.1, tau=0, threshold=0.5, activationfunction=Activationfunction.sigmoid, errorFunction=Errorfunction.cost, LRschedule=AdaptiveLR.timebased, arh=[0], name_brain="UnnamedBrain", save_brain=True, print_stats=True):
 	start=1
-	if arh==[0]:
-		arh= automatic_arh(lista)
-
+	trainlista=getdata(TableName=TableNameTrain, db_file=db_file)
+	devlista = getdata(TableName=TableNameDev, db_file=db_file)
 	if (name_brain+"_save.npy") in os.listdir("."):
 		with open (name_brain+"_info.npy", "rb") as file:
-			[alpha, activationfunction, errorFunction, arh, fixedAlpha, start, error, accuracy] = pickle.load(file)
+			[alpha2, activationfunction, errorFunction, arh, start, error, accuracydev, tau] = pickle.load(file)
 
-	mozak=Brain (arhitecture=arh, mjerenja=lista, alpha=alpha, activationFunction=activationfunction, errorFunction=errorFunction, fixedAlpha=fixedAlpha)
+	mozak=Brain (arhitecture=arh, mjerenja=trainlista, alpha=alpha, activationFunction=activationfunction, errorFunction=errorFunction)
 	mozak.birth()
-	
 	if (name_brain+"_save.npy") in os.listdir("."):
 		mozak.loadbrain (name_brain+"_save.npy")
+	epoh=start
+	ctrl = True
+	if not (briteracija==0):
+		nuceno=100
+	try:	
+		while ctrl:
+			n1,y1= mozak.learn (mjerenja=trainlista)
+			accuracytrain=getstats(n1,y1,threshold=threshold)[0]
+			errortrain = errorFunction (n1,y1)
+			n,y=mozak.test (mjerenja=devlista)
+			accuracydev,f1score=getstats(n,y,threshold=threshold)[0:2]
+			if print_stats:
+				print("EPOH: "+str(epoh)+"/"+str(briteracija+start-1)+" (LR="+str("{:.2e}".format(mozak.alpha))+")"+" -/-/- "+ "ERROR:"+str ("{:.4f}".format(errortrain))+" ||ACCURACY train:"+str ("{:.4f}".format(accuracytrain*100))+", dev:"+str ("{:.4f}".format(accuracydev*100))+"|| F1 SCORE:"+str ("{:.4f}".format(f1score))  )
+			epoh+=1 
+			mozak.alpha=LRschedule(alpha,epoh,tau)
+			if (epoh==start+briteracija) or (accuracydev>=nauceno): #prekida učenje ako je naučio sa dovoljnim accuracy ili je dovoljno puta učio
+				ctrl=False
+	
+	except KeyboardInterrupt: #sprema mozak u slučaju ctrl+c
+		if save_brain:
+				mozak.savebrain (name_brain+"_save.npy")
+				with open (name_brain+"_info.npy", "wb") as file:
+					pickle.dump([mozak.alpha, mozak.activationfunction, mozak.errorFunction, mozak.arhitecture, epoh, errortrain, accuracydev, tau], file)
 
-	for j in range (start, briteracija+start):
-		convergance= False
-		while not convergance:
-			error,accuracy,convergance= mozak.learn ()
+	tpr=[]
+	fpr=[]
+	ppv=[]
+	accuracy=[]
+	f1score=[]
+	thrashold=[]
+	for i in np.arange (0,1,0.1):
+		accuracy1,f1score1, tpr1, fpr1, ppv1=getstats(n,y,threshold=i)
+		accuracy.append(accuracy1)
+		f1score.append(f1score1)
+		tpr.append(tpr1)
+		fpr.append(fpr1)
+		ppv.append(ppv1)
+		thrashold.append (i)
 
-		progressbar="EPOH: "+str("{:7.0f}".format(j))+"/"+str(briteracija+start-1)+" ----- ERROR:"+str ("{:9.4f}".format(error))+"   ACCURACY: "+str ("{:7.4f}".format(accuracy))
-		if not mozak.fixedAlpha:
-			progressbar+= "   LEARNING RATE: "+str("{:7.4f}".format(mozak.alpha))
-		output+=progressbar+"\n"
-		if print_stats:
-			print(progressbar)
-	if save_brain:
+	if save_brain: #sprema mozak na kraju
 		mozak.savebrain (name_brain+"_save.npy")
 		with open (name_brain+"_info.npy", "wb") as file:
-			pickle.dump([mozak.alpha, mozak.activationfunction, mozak.errorFunction, mozak.arhitecture, mozak.fixedAlpha, briteracija+start, error, accuracy], file)
-	return output
-	
+			pickle.dump([mozak.alpha, mozak.activationfunction, mozak.errorFunction, mozak.arhitecture, epoh, errortrain, accuracy, tau], file)
+	return briteracija+start, errortrain, thrashold, accuracy, f1score, tpr, fpr, ppv
+
+
+
 if __name__ == '__main__':
-	learner (getdata(TableName="MAGIC_train",db_file='Data.db'), briteracija=100, alpha=0.1, arh=[1,1], fixedAlpha=True, activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid])
-	#input ("PRESS ANY KEY TO EXIT")
+	a=learner (TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Data.db', briteracija=0, nauceno=90, alpha=1, tau=0.01, threshold=0.5, arh=[1,10,10,1], activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid], LRschedule=AdaptiveLR.timebased)
+	##print (a[3])
+#ROC 005
