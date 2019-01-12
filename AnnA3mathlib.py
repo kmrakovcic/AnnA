@@ -6,7 +6,7 @@ class Activationfunction:
 		y=x
 		if d:
 			return 1
-		return y
+		else: return y
 
 	identity = nofunction
 
@@ -49,29 +49,39 @@ class Errorfunction:
 			neurons=neurons+np.isin(neurons,0)*0.1
 		return -np.sum(result*np.log(neurons)+(1-result)*np.log(1-neurons))
 
+class AdaptiveLR:
+	def timebased (lr0,epoch,tau=0.01):
+		return lr0*1/(1+tau*epoch)
+
+	def stepdecay (lr0,epoch,tau=10):
+		return lr0*0.5^math.floor(epoch/tau)
+
+	def exponentialdecay (lr0,epoch,tau=0.1):
+		return lr0*math.exp(-1*tau*epoch)
+
+
+
 def getstats1 (n,y):
 	n=n.T
 	y=y.T
-	#print (n)
 	return 100*((abs(n-y)<0.5).dot(np.ones(n.shape[1]))==n.shape[1]).sum (axis=0)/n.shape[0]
 
 def getstats (n,y, threshold=0.5):
+	import warnings
+	warnings.filterwarnings("ignore")
 	n=n.T
 	y=y.T
 	n=(n>threshold)*1
 	tp=np.sum(np.logical_and(n==1,y==1)*1)  #true positives
 	tn=np.sum(np.logical_and(n==0,y==0)*1)	#true negatives
-	fp=np.sum(y)-tp                         #false positives
-	fn=np.sum (y==0)-tn                     #false negatives
+	fp=np.sum(np.logical_and(n==1,y==0)*1)  #false positives
+	fn=np.sum(np.logical_and(n==0,y==1)*1)  #false negatives
 	accuracy=(tp+tn)/(tp+tn+fp+fn)    #accuracy
-	tpr=tp/(tp+fn)                    #sensitivity or true positive rate
+	tpr=tp/(tp+fn)                    #sensitivity (recall) or true positive rate
 	fpr=fp/(fp+tp)                    #fallout or false positive rate
 	ppv=tp/(tp+fp)                    #precision or positive predicitve value
-	f1=2*ppv*tpr/(ppv+tpr)            #f1 score
+	f1=(2*ppv*tpr)/(ppv+tpr)            #f1 score
+	warnings.resetwarnings()
 	return accuracy, f1, tpr, fpr, ppv
-if __name__ == '__main__':	
-	a=np.array ([[1],[0],[0],[1],[1],[0],[0],[1]])
-	b=np.array ([[0.7],[0.2],[0.6],[0.2],[0.2],[0.6],[0.2],[0.1]])
-	k= getstats1 (b,a)
-	print (k)
+if __name__ == '__main__':
 	pass

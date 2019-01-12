@@ -83,7 +83,7 @@ class Brain:
 		self.b = self.newb
 		return self.n[len(self.n)-1], self.mjerenja[1]
 
-	def test (self, mjerenja=[]):
+	def test (self, mjerenja=[]):  #algoritam za testiranje
 		if not mjerenja==[]: self.mjerenja=mjerenja
 		self.fowardpropagation ()
 		return self.n[len(self.n)-1], self.mjerenja[1]
