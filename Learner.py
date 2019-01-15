@@ -156,7 +156,7 @@ def tester (TableNameTest="MAGIC_dev", db_file='Data.db', name_brain="UnnamedBra
 		plt.savefig (name_brain+"/plot"+"/ROCcurve.png")
 		if graf:
 			plt.show()
-	except: print ("No plotting 4U D:")
+	except: print ("Oops, no plotting for you D:")
 
 if __name__ == '__main__':
 
