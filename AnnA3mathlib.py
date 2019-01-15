@@ -78,7 +78,7 @@ def getstats (n,y, threshold=0.5):
 	fn=np.sum(np.logical_and(n==0,y==1)*1)  #false negatives
 	accuracy=(tp+tn)/(tp+tn+fp+fn)    #accuracy
 	tpr=tp/(tp+fn)                    #sensitivity (recall) or true positive rate
-	fpr=fp/(fp+tp)                    #fallout or false positive rate
+	fpr=fp/(fp+tn)                    #fallout or false positive rate
 	ppv=tp/(tp+fp)                    #precision or positive predicitve value
 	f1=(2*ppv*tpr)/(ppv+tpr)            #f1 score
 	warnings.resetwarnings()
