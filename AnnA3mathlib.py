@@ -18,7 +18,10 @@ class Activationfunction:
 		return y
 
 	def sigmoid(x, d=False):
+		import warnings
+		warnings.filterwarnings("ignore")
 		y= 1 / (1 + np.exp(-x))
+		warnings.resetwarnings()
 		return y if d==False else y*(1-y)
 
 	def tanh(x, d=False):

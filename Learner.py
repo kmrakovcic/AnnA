@@ -160,5 +160,5 @@ def tester (TableNameTest="MAGIC_dev", db_file='Data.db', name_brain="UnnamedBra
 
 if __name__ == '__main__':
 
-	learner (briteracija=1, save_brain=True, alpha=0.0015, tau=0, arh=[1,16,1])#TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Data.db', briteracija=1, nauceno=90, alpha=1, tau=0.01, threshold=0.5, arh=[1,10,10,1], activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid], LRschedule=AdaptiveLR.timebased)
+	learner (briteracija=0, save_brain=True, alpha=0.0001, tau=0, arh=[1,1])#TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Data.db', briteracija=1, nauceno=90, alpha=1, tau=0.01, threshold=0.5, arh=[1,10,10,1], activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid], LRschedule=AdaptiveLR.timebased)
 	tester (graf=False)
