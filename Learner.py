@@ -24,7 +24,8 @@ def getdata (TableName="Iris_dataset",db_file='data.db'): #get data from SQL
 	rezultati=np.array(c.fetchall())
 	return np.array(input.T), np.array(output.T)
 
-def learner (TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Data.db', briteracija=0, nauceno=90, alpha=1, tau=0.001, threshold=0.5, activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid], errorFunction=Errorfunction.cost, LRschedule=AdaptiveLR.timebased, arh=[1,10,10,10,1], name_brain="UnnamedBrain", save_brain=True, print_stats=True):
+def learner (TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Data.db', briteracija=0, nauceno=90, alpha=1, tau=0.001, threshold=0.5, activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid], errorFunction=Errorfunction.cost, LRschedule=AdaptiveLR.activeSeljacki, arh=[1,10,10,10,1], name_brain="UnnamedBrain", save_brain=True, print_stats=True):
+	errorb4=9223372036854775807
 	start=1
 	if not (os.path.isdir(name_brain)):
 		os.mkdir (name_brain)
@@ -43,7 +44,7 @@ def learner (TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Da
 	epoh=start
 	ctrl = True
 	if not (briteracija==0):
-		nuceno=100
+		nauceno=100
 	try:	
 		while ctrl:
 			n1,y1= mozak.learn (mjerenja=trainlista)
@@ -54,9 +55,13 @@ def learner (TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Da
 			if print_stats:
 				print("EPOH: "+str(epoh)+"/"+str(briteracija+start-1)+" (LR="+str("{:.2e}".format(mozak.alpha))+")"+" -/-/- "+ "ERROR:"+str ("{:.4f}".format(errortrain))+" ||ACCURACY train:"+str ("{:.4f}".format(accuracytrain*100))+", dev:"+str ("{:.4f}".format(accuracydev*100))+"|| F1 SCORE:"+str ("{:.4f}".format(f1score))  )
 			epoh+=1 
-			mozak.alpha=LRschedule(alpha,epoh,tau)
+			if LRschedule==AdaptiveLR.activeSeljacki:
+				if (errortrain>errorb4):
+					mozak.alpha=LRschedule(mozak.alpha,epoh,tau)
+			else: mozak.alpha=LRschedule(alpha,epoh,tau)
 			if (epoh==start+briteracija) or (accuracydev>=nauceno): #prekida učenje ako je naučio sa dovoljnim accuracy ili je dovoljno puta učio
 				ctrl=False
+			errorb4=errortrain
 	
 	except KeyboardInterrupt: #sprema mozak u slučaju ctrl+c
 		if save_brain:
@@ -160,5 +165,5 @@ def tester (TableNameTest="MAGIC_dev", db_file='Data.db', name_brain="UnnamedBra
 
 if __name__ == '__main__':
 
-	learner (briteracija=0, save_brain=True, alpha=0.0001, tau=0, arh=[1,1])#TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Data.db', briteracija=1, nauceno=90, alpha=1, tau=0.01, threshold=0.5, arh=[1,10,10,1], activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid], LRschedule=AdaptiveLR.timebased)
+	learner (briteracija=0, save_brain=True, alpha=1, tau=0.1, arh=[1,16,1])#TableNameTrain="MAGIC_train", TableNameDev="MAGIC_dev", db_file='Data.db', briteracija=1, nauceno=90, alpha=1, tau=0.01, threshold=0.5, arh=[1,10,10,1], activationfunction=[Activationfunction.sigmoid,Activationfunction.sigmoid], LRschedule=AdaptiveLR.timebased)
 	tester (graf=False)

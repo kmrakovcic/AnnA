@@ -62,6 +62,9 @@ class AdaptiveLR:
 	def exponentialdecay (lr0,epoch,tau=0.1):
 		return lr0*math.exp(-1*tau*epoch)
 
+	def activeSeljacki (lr0, epoch, tau=0.1):
+		return lr0-(lr0*tau)
+
 
 
 def getstats1 (n,y):
