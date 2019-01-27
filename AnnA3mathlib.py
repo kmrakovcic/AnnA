@@ -65,6 +65,26 @@ class AdaptiveLR:
 	def activeSeljacki (lr0, epoch, tau=0.1):
 		return lr0-(lr0*tau)
 
+class Normalization:
+	def rescaling (y):
+		maxi=np.amax(y,axis=1)
+		mini=np.amin(y,axis=1)
+		return np.divide(np.subtract(y.T,mini), np.subtract (maxi,mini)).T
+
+	def mean_normalization (y):
+		maxi=np.amax(y,axis=1)
+		mini=np.amin(y,axis=1)
+		mean=np.mean(y,axis=1)
+		return np.divide(np.subtract(y.T,mean), np.subtract (maxi,mini)).T
+
+	def standardization (y):
+		mean=np.mean(y,axis=1)
+		sigma=np.std(y,axis=1)
+		print (y)
+		print (mean)
+		print (sigma)
+		print ( np.divide(np.subtract(y.T,mean),sigma).T)
+
 
 
 def getstats1 (n,y):
@@ -89,5 +109,16 @@ def getstats (n,y, threshold=0.5):
 	f1=(2*ppv*tpr)/(ppv+tpr)            #f1 score
 	warnings.resetwarnings()
 	return accuracy, f1, tpr, fpr, ppv
+
 if __name__ == '__main__':
-	pass
+	from matplotlib import pyplot as plt
+	y = [2.56422, 3.77284, 3.52623, 3.51468, 3.02199]
+	z = [0.15, 0.3, 0.45, 0.6, 0.75]
+	n = [58, 651, 393, 203, 123]
+
+	fig, ax = plt.subplots()
+	ax.plot(z, y)
+
+	for i, txt in enumerate(n):
+	    ax.annotate(txt, (z[i], y[i]))
+	plt.show()

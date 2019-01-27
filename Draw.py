@@ -1,5 +1,6 @@
 from matplotlib import pyplot
 from math import cos, sin, atan
+import random
 
 
 class Neuron():
@@ -9,7 +10,8 @@ class Neuron():
         self.b = b
 
     def draw(self, neuron_radius):
-        circle = pyplot.Circle((self.x, self.y), radius=neuron_radius, color=(self.b,self.b,self.b), fill=True)
+
+        circle = pyplot.Circle((self.x, self.y), radius=neuron_radius, color=(0,0,0), fill=False)
         pyplot.gca().add_patch(circle)
 
 
@@ -51,7 +53,7 @@ class Layer():
         angle = atan((neuron2.x - neuron1.x) / float(neuron2.y - neuron1.y))
         x_adjustment = self.neuron_radius * sin(angle)
         y_adjustment = self.neuron_radius * cos(angle)
-        line = pyplot.Line2D((neuron1.x - x_adjustment, neuron2.x + x_adjustment), (neuron1.y - y_adjustment, neuron2.y + y_adjustment), color=(weight,weight,weight))
+        line = pyplot.Line2D((neuron1.x - x_adjustment, neuron2.x + x_adjustment), (neuron1.y - y_adjustment, neuron2.y + y_adjustment), color="k", linewidth="0.7",antialiased=False)
         pyplot.gca().add_line(line)
 
     def draw(self, layerType=0):
@@ -79,7 +81,7 @@ class NeuralNetwork():
         layer = Layer(self, number_of_neurons, self.number_of_neurons_in_widest_layer)
         self.layers.append(layer)
 
-    def draw(self):
+    def draw(self,file):
         pyplot.figure()
         for i in range( len(self.layers) ):
             layer = self.layers[i]
@@ -88,18 +90,18 @@ class NeuralNetwork():
             layer.draw( i )
         pyplot.axis('scaled')
         pyplot.axis('off')
-        pyplot.title( 'Neural Network architecture', fontsize=15 )
-        pyplot.show()
+        #pyplot.title( 'Arhitektura neuralne mreze', fontsize=15 )
+        pyplot.savefig (file)
 
 class DrawNN():
     def __init__( self, neural_network ):
         self.neural_network = neural_network
 
-    def draw( self ):
+    def draw( self, file ):
         widest_layer = max( self.neural_network )
         network = NeuralNetwork( widest_layer )
         for l in self.neural_network:
             network.add_layer(l)
-        network.draw()
+        network.draw(file)
 if __name__ == '__main__':        
-    network = DrawNN( [10,16,1] ).draw()
+    DrawNN( [5,5,1] ).draw("NN.png")
